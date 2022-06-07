@@ -1,0 +1,88 @@
+##################################################################
+##
+## Common variables:
+##  $YEAR - yyyy
+##  $TIME - yyyy-MM-dd HH:mm:ss
+##  $USER - user.name
+##
+## Available variables:
+##  $class0 - the context class, alias: $class
+##  $class1 - the selected class, like $class1, $class2
+##  $ClassName - generate by the config of "Class Name", the generated class name
+##  $packageName - sss
+##
+## Class Entry Structure:
+##  $class0.className - the class Name
+##  $class0.packageName - the packageName
+##  $class0.importList - the list of imported classes name
+##  $class0.fields - the list of the class fields
+##          - type: the field type
+##          - name: the field name
+##          - modifier: the field modifier, like "private",or "@Setter private" if include annotations
+##  $class0.allFields - the list of the class fields include all fields of superclass
+##          - type: the field type
+##          - name: the field name
+##          - modifier: the field modifier, like "private",or "@Setter private" if include annotations
+##  $class0.methods - the list of class methods
+##          - name: the method name
+##          - modifier: the method modifier, like "private static"
+##          - returnType: the method returnType
+##          - params: the method params, like "(String name)"
+##  $class0.allMethods - the list of class methods include all methods of superclass
+##          - name: the method name
+##          - modifier: the method modifier, like "private static"
+##          - returnType: the method returnType
+##          - params: the method params, like "(String name)"#
+########################################################################################
+#macro (cap $strIn)$strIn.valueOf($strIn.charAt(0)).toUpperCase()$strIn.substring(1)#end
+#macro (low $strIn)$strIn.valueOf($strIn.charAt(0)).toLowerCase()$strIn.substring(1)#end
+#set($class0Var = "#low(${class0.ClassName})")
+#set($class1Var = "#low(${class1.ClassName})")
+package $class0.PackageName;
+
+import org.mapstruct.Builder;
+import org.mapstruct.Mapper;
+import org.mapstruct.factory.Mappers;
+import java.util.List;
+
+import ${class0.PackageName}.${class0.ClassName};
+import ${class1.PackageName}.${class1.ClassName};
+
+/**
+*
+* @author $USER
+* @version $Id: ${ClassName}.java, v 0.1 $TIME $USER Exp $$
+*/
+@Mapper(builder = @Builder(disableBuilder = true))
+public interface $ClassName {
+
+    $ClassName INSTANCE = Mappers.getMapper(${ClassName}.class);
+
+    /**
+    * Convert ${class1.ClassName} to ${class0.ClassName}
+    * @param ${class1Var}
+    * @return
+    */
+    public $class0.ClassName bo2Do($class1.ClassName #low($class1.ClassName));
+
+    /**
+    * Convert ${class0.ClassName} to ${class1.ClassName}
+    * @param ${class0Var}
+    * @return
+    */
+    public $class1.ClassName do2Bo($class0.ClassName #low($class0.ClassName));
+
+    /**
+    * Convert ${class1.ClassName} to ${class0.ClassName}
+    * @param #low($class1.ClassName)List
+    * @return
+    */
+    public List<$class0.ClassName> bo2Do(List<$class1.ClassName> #low($class1.ClassName)List);
+
+    /**
+    * Convert ${class0.ClassName} to ${class1.ClassName}
+    * @param #low($class0.ClassName)List
+    * @return
+    */
+    public List<$class1.ClassName> do2Bo(List<$class0.ClassName> #low($class0.ClassName)List);
+}

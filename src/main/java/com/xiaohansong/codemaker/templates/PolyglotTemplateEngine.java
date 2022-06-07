@@ -11,6 +11,7 @@ import java.util.Map;
 public class PolyglotTemplateEngine implements TemplateEngine {
 
     private static Map<TemplateLanguage, TemplateEngine> engines;
+
     static {
         engines = new HashMap<>();
         engines.put(TemplateLanguage.vm, new VelocityTemplateEngine());
@@ -18,9 +19,19 @@ public class PolyglotTemplateEngine implements TemplateEngine {
     }
 
     @Override
-    public GeneratedSource evaluate(CodeTemplate codeTemplate, List<ClassEntry> selectClasses, ClassEntry currentClass) {
+    public GeneratedSource evaluate(CodeTemplate codeTemplate, List<ClassEntry> selectClasses,
+                                    ClassEntry currentClass) {
+        return evaluate(codeTemplate, selectClasses, currentClass, null);
+    }
+
+    @Override
+    public GeneratedSource evaluate(CodeTemplate codeTemplate, List<ClassEntry> selectClasses,
+                                    ClassEntry currentClass, String targetPackage) {
         final TemplateEngine engine = engines.get(codeTemplate.getTemplateLanguage());
-        if(engine == null) throw new IllegalArgumentException("Unsupported language: " + codeTemplate.getTemplateLanguage());
+        if (engine == null) {
+            throw new IllegalArgumentException("Unsupported language: " + codeTemplate.getTemplateLanguage());
+        }
+        
         return engine.evaluate(codeTemplate, selectClasses, currentClass);
     }
 }

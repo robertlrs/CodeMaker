@@ -7,4 +7,7 @@ import java.util.List;
 
 public interface TemplateEngine {
     GeneratedSource evaluate(CodeTemplate codeTemplate, List<ClassEntry> selectClasses, ClassEntry currentClass);
+    GeneratedSource evaluate(CodeTemplate codeTemplate, List<ClassEntry> selectClasses, ClassEntry currentClass,
+                             String targetPackage);
+
 }

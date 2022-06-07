@@ -32,18 +32,29 @@ public class CodeMakerSettings implements PersistentStateComponent<CodeMakerSett
     private void loadDefaultSettings() {
         try {
             Map<String, CodeTemplate> codeTemplates = new LinkedHashMap<>();
-            codeTemplates.put("Model",
-                    createCodeTemplate("Model",
-                            "Model.vm",
-                            "#set($end = ${class0.className.length()} - 2)${class0.className.substring(0,${end})}", 1, "java"));
-            codeTemplates.put("Converter",
-                    createCodeTemplate("Converter", "Converter.vm", "${class0.className}Converter", 2, "java"));
-            codeTemplates.put("Specs2 Matcher",
-                    createCodeTemplate("Specs2 Matcher", "specs2-matcher.vm", "${class0.className}Matchers", 1, "scala"));
-            codeTemplates.put("Specs2 Fluent Matcher",
-                    createCodeTemplate("Specs2 Fluent Matcher", "specs2-fluent-matcher.vm", "${class0.className}Matchers", 1, "scala"));
-            codeTemplates.put("FieldComment",
-                    createCodeTemplate("FieldComment", "FieldComment.vm", "${class0.className}", 1, "java"));
+            codeTemplates.put("BO",
+                    createCodeTemplate("BO",
+                            "BO.vm",
+                            "${class0.className}BO", 1, "java"));
+            codeTemplates.put("DTO",
+                    createCodeTemplate("DTO",
+                            "DTO.vm",
+                            "${class0.className}DTO", 1, "java"));
+            codeTemplates.put("BoConverter",
+                    createCodeTemplate("BoConverter", "BoConverter.vm", "${class0.className}BoConverter", 2, "java"));
+            codeTemplates.put("VoConverter",
+                    createCodeTemplate("VoConverter", "VoConverter.vm",
+                            "#set($end = ${class0.className.length()} - 2)${class0.className.substring(0,${end})" +
+                                    "}VoConverter", 2, "java"));
+
+            //            codeTemplates.put("Specs2 Matcher",
+//                    createCodeTemplate("Specs2 Matcher", "specs2-matcher.vm", "${class0.className}Matchers", 1,
+//                    "scala"));
+//            codeTemplates.put("Specs2 Fluent Matcher",
+//                    createCodeTemplate("Specs2 Fluent Matcher", "specs2-fluent-matcher.vm", "${class0
+//                    .className}Matchers", 1, "scala"));
+//            codeTemplates.put("FieldComment",
+//                    createCodeTemplate("FieldComment", "FieldComment.vm", "${class0.className}", 1, "java"));
 
             this.codeTemplates = codeTemplates;
         } catch (Exception e) {
@@ -52,9 +63,12 @@ public class CodeMakerSettings implements PersistentStateComponent<CodeMakerSett
     }
 
     @NotNull
-    private CodeTemplate createCodeTemplate(String name, String sourceTemplateName, String classNameVm, int classNumber, String targetLanguage) throws IOException {
-        String velocityTemplate = FileUtil.loadTextAndClose(CodeMakerSettings.class.getResourceAsStream("/template/" + sourceTemplateName));
-        return new CodeTemplate(name, classNameVm, velocityTemplate, classNumber, CodeTemplate.DEFAULT_ENCODING, TemplateLanguage.vm, targetLanguage);
+    private CodeTemplate createCodeTemplate(String name, String sourceTemplateName, String classNameVm,
+                                            int classNumber, String targetLanguage) throws IOException {
+        String velocityTemplate =
+                FileUtil.loadTextAndClose(CodeMakerSettings.class.getResourceAsStream("/template/" + sourceTemplateName));
+        return new CodeTemplate(name, classNameVm, velocityTemplate, classNumber, CodeTemplate.DEFAULT_ENCODING,
+                TemplateLanguage.vm, targetLanguage);
     }
 
     /**

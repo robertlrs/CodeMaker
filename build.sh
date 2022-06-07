@@ -7,3 +7,5 @@ export GRADLE_HOME="D:\software\gradle-5.2.1"
 export PATH="$GRADLE_HOME\bin;$PATH"
 
 /d/software/gradle-5.2.1/bin/gradle clean build
+
+ cp  build/distributions/CodeMaker-1.4.zip  /d/software/idea/plugins/

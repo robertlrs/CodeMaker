@@ -16,17 +16,26 @@ abstract public class BaseTemplateEngine implements TemplateEngine {
     abstract protected TemplateLanguage supportedLanguage();
 
     @Override
-    public GeneratedSource evaluate(CodeTemplate template, List<ClassEntry> selectClasses, ClassEntry currentClass) {
-        if(template.getTemplateLanguage() != supportedLanguage())
+    public GeneratedSource evaluate(CodeTemplate codeTemplate, List<ClassEntry> selectClasses,
+                                    ClassEntry currentClass) {
+        return evaluate(codeTemplate, selectClasses, currentClass, null);
+    }
+
+    @Override
+    public GeneratedSource evaluate(CodeTemplate template, List<ClassEntry> selectClasses, ClassEntry currentClass,
+                                    String packageName) {
+        if (template.getTemplateLanguage() != supportedLanguage()) {
             throw new IllegalArgumentException("unsupported language: " + template.getTemplateLanguage());
-        final Environment environment = createEnvironment(template, selectClasses, currentClass);
+        }
+        final Environment environment = createEnvironment(template, selectClasses, currentClass, packageName);
         final String source = doEvaluate(template, environment);
         return new GeneratedSource(environment.className, source);
     }
 
     abstract protected String doEvaluate(CodeTemplate template, Environment environment);
 
-    protected Environment createEnvironment(CodeTemplate template, List<ClassEntry> selectClasses, ClassEntry currentClass) {
+    protected Environment createEnvironment(CodeTemplate template, List<ClassEntry> selectClasses,
+                                            ClassEntry currentClass, String packageName) {
         Map<String, Object> map = new HashMap<>();
         for (int i = 0; i < selectClasses.size(); i++) {
             map.put("class" + i, selectClasses.get(i));
@@ -42,6 +51,17 @@ abstract public class BaseTemplateEngine implements TemplateEngine {
         map.put("QT", "\"");
         String className = generateClassNameAndHandleErrors(template, map);
         map.put(getClassNameKey(), className);
+
+        if (null != packageName) {
+            map.put("packageName", packageName + "." + className);
+
+        } else {
+            /**
+             * 测试用的
+             */
+            map.put("packageName", "com.test");
+        }
+
         return new Environment(className, map);
     }
 
@@ -50,7 +70,8 @@ abstract public class BaseTemplateEngine implements TemplateEngine {
         try {
             className = generateClassName(template.getClassNameVm(), map);
         } catch (Exception e) {
-            final RuntimeException reported = new RuntimeException(String.format("Failed to generate class name:\n%s\n%s", e.getClass().getName(), e.getMessage()), e);
+            final RuntimeException reported = new RuntimeException(String.format("Failed to generate class " +
+                    "name:\n%s\n%s", e.getClass().getName(), e.getMessage()), e);
             reported.setStackTrace(e.getStackTrace());
             throw reported;
         }
@@ -88,11 +109,11 @@ abstract public class BaseTemplateEngine implements TemplateEngine {
         }
 
         public String quot(String str) {
-            return "\""+ str + "\"";
+            return "\"" + str + "\"";
         }
 
-        public String camelCase(String prefix, String name){
-            if(name == null || name.isEmpty())
+        public String camelCase(String prefix, String name) {
+            if (name == null || name.isEmpty())
                 return name;
             String identifier = scala.removeBackticks(name);
             return scala.removeBackticks(prefix) + identifier.substring(0, 1).toUpperCase() + identifier.substring(1);
@@ -106,7 +127,7 @@ abstract public class BaseTemplateEngine implements TemplateEngine {
              * backticks are sometimes used in scala identifiers to escape reserved words like `type`, `object`, etc.
              */
             public String removeBackticks(String str) {
-                if(str == null) return str;
+                if (str == null) return str;
                 else return str.replace("`", "");
             }
         }

@@ -25,7 +25,8 @@ class DestinationChooser {
                                          final List<? extends VirtualFile> contentSourceRoots,
                                          final PsiDirectory initialDirectory) {
         Project project = targetPackage.getManager().getProject();
-        //ensure that there would be no duplicates: e.g. when one content root is subfolder of another root (configured via excluded roots)
+        //ensure that there would be no duplicates: e.g. when one content root is subfolder of another root
+        // (configured via excluded roots)
         LinkedHashSet<PsiDirectory> targetDirectories = new LinkedHashSet<>();
         Map<PsiDirectory, String> relativePathsToCreate = new HashMap<>();
         buildDirectoryList(targetPackage, contentSourceRoots, targetDirectories, relativePathsToCreate);
@@ -38,11 +39,10 @@ class DestinationChooser {
         );
     }
 
-    private static
-    Destination chooseDirectory(PsiDirectory[] targetDirectories,
-                                 @Nullable PsiDirectory initialDirectory,
-                                 @NotNull Project project,
-                                 Map<PsiDirectory, String> relativePathsToCreate) {
+    private static Destination chooseDirectory(PsiDirectory[] targetDirectories,
+                                               @Nullable PsiDirectory initialDirectory,
+                                               @NotNull Project project,
+                                               Map<PsiDirectory, String> relativePathsToCreate) {
         final int SHOW_SOURCE_CODE = 555;
         final DirectoryChooser chooser = new DirectoryChooser(project) {
             @NotNull
@@ -73,7 +73,7 @@ class DestinationChooser {
         );
 
         chooser.show();
-        if(chooser.isOK() && chooser.getSelectedDirectory() != null) {
+        if (chooser.isOK() && chooser.getSelectedDirectory() != null) {
             return new FileDestination(chooser.getSelectedDirectory().getVirtualFile());
         } else if (chooser.getExitCode() == SHOW_SOURCE_CODE) {
             return ShowSourceDestination;
@@ -82,12 +82,34 @@ class DestinationChooser {
         }
     }
 
-    interface Destination {}
+    interface Destination {
+        /**
+         * 设置存储的包路径
+         *
+         * @param packagePath
+         */
+        void packagePath(final String packagePath);
+    }
 
     @Data
     static class FileDestination implements Destination {
         private final VirtualFile file;
+        private String packagePath;
+
+        public String getPackagePath() {
+            return packagePath;
+        }
+
+        @Override
+        public void packagePath(String packagePath) {
+            this.packagePath = packagePath;
+        }
     }
 
-    static final Destination ShowSourceDestination = new Destination() {};
+    static final Destination ShowSourceDestination = new Destination() {
+        @Override
+        public void packagePath(String packagePath) {
+            
+        }
+    };
 }

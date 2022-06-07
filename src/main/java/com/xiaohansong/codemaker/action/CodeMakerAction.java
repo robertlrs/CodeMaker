@@ -31,6 +31,7 @@ import com.xiaohansong.codemaker.ui.Editors;
 import com.xiaohansong.codemaker.util.CodeMakerUtil;
 import org.jetbrains.annotations.NotNull;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -90,29 +91,56 @@ public class CodeMakerAction extends AnAction implements DumbAware {
 
         try {
             ClassEntry currentClass = selectClasses.get(0);
-            GeneratedSource generated = generateSource(codeTemplate, selectClasses, currentClass);
             DestinationChooser.Destination destination = chooseDestination(currentClass, project, psiElement);
+
             if (destination instanceof DestinationChooser.FileDestination) {
-                saveToFile(anActionEvent, language, generated.className, generated.content, currentClass, (DestinationChooser.FileDestination) destination, codeTemplate.getFileEncoding());
-            }
-            else if(destination == DestinationChooser.ShowSourceDestination) {
+                DestinationChooser.FileDestination fileDestination = (DestinationChooser.FileDestination) destination;
+                fileDestination.setPackagePath(getTargetPackage(fileDestination));
+                GeneratedSource generated = generateSource(codeTemplate, selectClasses, currentClass,
+                        fileDestination.getPackagePath());
+                saveToFile(anActionEvent, language, generated.className, generated.content, currentClass,
+                        fileDestination, codeTemplate.getFileEncoding());
+            } else if (destination == DestinationChooser.ShowSourceDestination) {
+                GeneratedSource generated = generateSource(codeTemplate, selectClasses, currentClass, null);
                 showSource(project, codeTemplate.getTargetLanguage(), generated.className, generated.content);
             }
-
         } catch (Exception e) {
             Messages.showMessageDialog(project, e.getMessage(), "Generate Failed", null);
         }
     }
 
     @NotNull
-    private GeneratedSource generateSource(CodeTemplate codeTemplate, List<ClassEntry> selectClasses, ClassEntry currentClass) {
-        return templateEngine.evaluate(codeTemplate, selectClasses, currentClass);
+    private GeneratedSource generateSource(CodeTemplate codeTemplate, List<ClassEntry> selectClasses,
+                                           ClassEntry currentClass, String packageName) {
+        return templateEngine.evaluate(codeTemplate, selectClasses, currentClass, packageName);
     }
 
-    private void saveToFile(AnActionEvent anActionEvent, String language, String className, String content, ClassEntry currentClass, DestinationChooser.FileDestination destination, String encoding) {
+    private String getTargetPath(DestinationChooser.FileDestination destination, String className, String language) {
         final VirtualFile file = destination.getFile();
-        final String sourcePath = file.getPath() + "/" + currentClass.getPackageName().replace(".", "/");
+        final String sourcePath = file.getPath() + "/";
         final String targetPath = CodeMakerUtil.generateClassPath(sourcePath, className, language);
+        return targetPath;
+    }
+
+    private String getTargetPackage(DestinationChooser.FileDestination destination) {
+        final VirtualFile file = destination.getFile();
+        final String sourcePath = file.getPath();
+        final String SPLIT =
+                File.separatorChar + "src" + File.separatorChar + "main" + File.separatorChar + "java" + File.separatorChar;
+        final String packagePath =
+                sourcePath.substring(sourcePath.lastIndexOf(SPLIT) + SPLIT.length())
+                        .replace(File.separatorChar, '.');
+        return packagePath;
+    }
+
+    private void saveToFile(AnActionEvent anActionEvent, String language, String className, String content,
+                            ClassEntry currentClass, DestinationChooser.FileDestination destination, String encoding) {
+        final VirtualFile file = destination.getFile();
+//        final String sourcePath = file.getPath() + "/" + currentClass.getPackageName().replace(".", "/");
+//        final String sourcePath = file.getPath() + "/";
+//        final String targetPath = CodeMakerUtil.generateClassPath(sourcePath, className, language);
+        final String targetPath = getTargetPath(destination, className, language);
+
 
         VirtualFileManager manager = VirtualFileManager.getInstance();
         VirtualFile virtualFile = manager
@@ -142,12 +170,15 @@ public class CodeMakerAction extends AnAction implements DumbAware {
     /**
      * allow user to select the generated code source root
      */
-    private DestinationChooser.Destination chooseDestination(ClassEntry classEntry, Project project, PsiElement psiElement) {
+    private DestinationChooser.Destination chooseDestination(ClassEntry classEntry, Project project,
+                                                             PsiElement psiElement) {
         String packageName = classEntry.getPackageName();
         final PackageWrapper targetPackage = new PackageWrapper(PsiManager.getInstance(project), packageName);
         List<VirtualFile> suitableRoots = JavaProjectRootsUtil.getSuitableDestinationSourceRoots(project);
-        return DestinationChooser.chooseDestination(targetPackage, suitableRoots,
+        DestinationChooser.Destination destination = DestinationChooser.chooseDestination(targetPackage, suitableRoots,
                 psiElement.getContainingFile().getContainingDirectory());
+        destination.packagePath(packageName);
+        return destination;
     }
 
     private boolean userConfirmedOverride() {
