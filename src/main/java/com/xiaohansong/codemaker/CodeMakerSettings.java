@@ -40,6 +40,10 @@ public class CodeMakerSettings implements PersistentStateComponent<CodeMakerSett
                     createCodeTemplate("DTO",
                             "DTO.vm",
                             "${class0.className}DTO", 1, "java"));
+            codeTemplates.put("VO",
+                    createCodeTemplate("VO",
+                            "VO.vm",
+                            "${class0.className}VO", 1, "java"));
             codeTemplates.put("BoConverter",
                     createCodeTemplate("BoConverter", "BoConverter.vm", "${class0.className}BoConverter", 2, "java"));
             codeTemplates.put("VoConverter",
