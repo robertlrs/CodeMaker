@@ -62,26 +62,26 @@ public interface $ClassName {
     * @param ${class1Var}
     * @return
     */
-    public $class0.ClassName Dto2Bo($class1.ClassName #low($class1.ClassName));
+    public $class0.ClassName vo2Bo($class1.ClassName #low($class1.ClassName));
 
     /**
     * Convert ${class0.ClassName} to ${class1.ClassName}
     * @param ${class0Var}
     * @return
     */
-    public $class1.ClassName bo2Dto($class0.ClassName #low($class0.ClassName));
+    public $class1.ClassName bo2Vo($class0.ClassName #low($class0.ClassName));
 
     /**
     * Convert ${class1.ClassName} to ${class0.ClassName}
     * @param #low($class1.ClassName)List
     * @return
     */
-    public List<$class0.ClassName> Dto2Bo(List<$class1.ClassName> #low($class1.ClassName)List);
+    public List<$class0.ClassName> vo2Bo(List<$class1.ClassName> #low($class1.ClassName)List);
 
     /**
     * Convert ${class0.ClassName} to ${class1.ClassName}
     * @param #low($class0.ClassName)List
     * @return
     */
-    public List<$class1.ClassName> bo2Dto(List<$class0.ClassName> #low($class0.ClassName)List);
+    public List<$class1.ClassName> bo2Vo(List<$class0.ClassName> #low($class0.ClassName)List);
 }
