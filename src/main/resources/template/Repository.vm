@@ -1,0 +1,94 @@
+##################################################################
+##
+## Common variables:
+##  $YEAR - yyyy
+##  $TIME - yyyy-MM-dd HH:mm:ss
+##  $USER - user.name
+##
+## Available variables:
+##  $class0 - the context class, alias: $class
+##  $class1 - the selected class, like $class1, $class2
+##  $ClassName - generate by the config of "Class Name", the generated class name
+##  $packageName - sss
+##
+## Class Entry Structure:
+##  $class0.className - the class Name
+##  $class0.packageName - the packageName
+##  $class0.importList - the list of imported classes name
+##  $class0.fields - the list of the class fields
+##          - type: the field type
+##          - name: the field name
+##          - modifier: the field modifier, like "private",or "@Setter private" if include annotations
+##  $class0.allFields - the list of the class fields include all fields of superclass
+##          - type: the field type
+##          - name: the field name
+##          - modifier: the field modifier, like "private",or "@Setter private" if include annotations
+##  $class0.methods - the list of class methods
+##          - name: the method name
+##          - modifier: the method modifier, like "private static"
+##          - returnType: the method returnType
+##          - params: the method params, like "(String name)"
+##  $class0.allMethods - the list of class methods include all methods of superclass
+##          - name: the method name
+##          - modifier: the method modifier, like "private static"
+##          - returnType: the method returnType
+##          - params: the method params, like "(String name)"#
+########################################################################################
+#macro (cap $strIn)$strIn.valueOf($strIn.charAt(0)).toUpperCase()$strIn.substring(1)#end
+#macro (low $strIn)$strIn.valueOf($strIn.charAt(0)).toLowerCase()$strIn.substring(1)#end
+#set($class0Var = "#low(${class0.ClassName})")
+#set($packageName = "${class0.PackageName}")
+
+package $class0.PackageName;
+
+import javax.annotation.Resource;
+import java.util.List;
+import java.util.Collections;
+import ${class0.PackageName}.${class0.ClassName};
+import org.springframework.stereotype.Component;
+
+import org.apache.commons.collections4.CollectionUtils;
+import com.alibaba.fastjson.JSON;
+import lombok.extern.slf4j.Slf4j;
+
+import com.gemdale.pdm.common.domain.common.ResultCode;
+import com.gemdale.pdm.common.utils.JdAssert;
+
+/**
+*
+* @author $USER
+* @version $Id: ${ClassName}.java, v 0.1 $TIME $USER Exp $$
+*/
+@Component
+@Slf4j
+public class ${ClassName} {
+    @Resource
+    private I${class0.ClassName}Service #low($class0.ClassName)Service;
+
+
+    /**
+    * 批量保存数据
+    * @param #low($class0.ClassName)BOList
+    * @return
+    */
+    public void saveOrUpdate(final List<${class0.ClassName}BO> #low($class0.ClassName)BOList){
+        if(CollectionUtils.isEmpty(#low($class0.ClassName)BOList)){
+            return;
+        }
+
+         final List<${class0.ClassName}> #low($class0.ClassName)List =
+                        ${class0.ClassName}BoConverter.INSTANCE.bo2Do(#low($class0.ClassName)BOList);
+         final Boolean success = #low($class0.ClassName)Service.saveOrUpdateBatch(#low($class0.ClassName)List);
+         JdAssert.isTrue(success, ResultCode.SQL_ERROR, String.format("数据入库失败: %s",
+                        JSON.toJSONString(#low($class0.ClassName)BOList)), log);
+    }
+
+    public List<${class0.ClassName}BO> queryList(){
+        final List<${class0.ClassName}> #low($class0.ClassName)List = #low($class0.ClassName)Service.list();
+        if(CollectionUtils.isEmpty(#low($class0.ClassName)List)){
+            return Collections.EMPTY_LIST;
+        }
+
+        return ${class0.ClassName}BoConverter.INSTANCE.do2Bo(#low($class0.ClassName)List);
+    }
+}
